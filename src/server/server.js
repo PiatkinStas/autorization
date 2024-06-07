@@ -29,7 +29,21 @@ app.post('/registrationform', async (req, res) => {
 app.post('/loginform', async (req, res) => {
   const { login, password } = req.body;
   try {
-  } catch (error) {}
+    const user = await RegistrationModel.findOne({ login: login });
+    if (user) {
+      const isMatch = await bcrypt.compare(password, user.password);
+      if (isMatch) {
+        res.send(`Вы успешно залогинились ${user._id}`);
+      } else {
+        res.send(`Неправильный пароль`);
+      }
+    } else {
+      res.send(`Такого пользователя нет`);
+    }
+  } catch (error) {
+    console.error('Ошибка при обработке запроса:', error);
+    res.status(500).send('Произошла ошибка при обработке запроса');
+  }
 });
 
 app.post('/close', async (req, res) => {});
